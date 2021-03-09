@@ -3,9 +3,11 @@ import json
 import sys
 import os
 
+# Gets necessary codes from environment variables
 CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 
+# Common authorization method
 def auth():
     headers = {'Content-Type': 'application/x-www-form-urlencoded', 'grant_type': 'client_credentials' }
     response = requests.post("https://accounts.spotify.com/api/token", auth=(CLIENT_ID, CLIENT_SECRET), data=headers)
@@ -16,6 +18,7 @@ def auth():
         res_json = response.json()
     return res_json.get('access_token')
 
+# Gets the full Spotify links and unwrap them for their song IDs
 def getSongIds(links):
     song_ids = []
 
@@ -26,6 +29,7 @@ def getSongIds(links):
 
     return song_ids
 
+# Formats the IDs in a string that requests can properly read and request the songs to the endpoint
 def formatParamString(song_ids):
     ids_list = ""
     lastSong = len(song_ids) - 1
@@ -38,6 +42,7 @@ def formatParamString(song_ids):
             ids_list += ","
     return ids_list
 
+# Sends IDs to the endpoint, getting the JSON file
 def getSongs(ids, token):
     print("Gathering tracks...")
     
@@ -48,6 +53,7 @@ def getSongs(ids, token):
         raise Exception(response.status_code, response.text)
     return response.json()
 
+# This is the main method. Must be called with a list with Spotify links. Returns JSON file with songs' info.
 def searchSongs(links):
     ids = getSongIds(links)
     idString = formatParamString(ids)
